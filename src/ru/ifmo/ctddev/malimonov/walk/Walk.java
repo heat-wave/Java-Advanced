@@ -28,6 +28,7 @@ public class Walk {
                     MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
                     hash = hashFNV(buffer);
                     buffer = null;
+                    System.gc();
                 }
                 catch (IOException e) {
                     //System.err.println("Exception while calculating hash for file" + line);
