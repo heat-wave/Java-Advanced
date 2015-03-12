@@ -1,5 +1,6 @@
 package ru.ifmo.ctddev.malimonov.walk;
 
+import javax.sql.rowset.serial.SerialRef;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -10,11 +11,11 @@ import java.util.ArrayList;
 /**
  * Created by heat_wave on 18.02.15.
  */
-public class Walk {
+public class RecursiveWalk {
     public static void main(String[] args) {
         Charset charset = Charset.forName("UTF-8");
 
-        if (args != null && args.length < 2 || args[0] == null || args[1] == null) {
+        if (args.length < 2 || args[0] == null || args[1] == null) {
             System.err.println("Not enough input parameters");
             return;
         }
@@ -82,28 +83,34 @@ public class Walk {
         return result;
     }
 
-    public static int hashFNV(FileChannel channel) throws IOException{
+    public static int hashFNV(FileChannel channel) {
         final int OFFSET_BASIS = 0x811c9dc5;
         final int FNV_PRIME = 0x01000193;
-        final int PAGE_SIZE = 1024 * 1024 * 4;
-
-        long start = System.currentTimeMillis();
+        final int PAGE_SIZE = 1024 * 128;
 
         int hash = OFFSET_BASIS;
 
         ByteBuffer reader = ByteBuffer.allocate(PAGE_SIZE);
+        int c = 0;
 
-        while (channel.read(reader) != -1) {
-            reader.flip();
+        try {
+            while (channel.read(reader) != -1) {
+                reader.flip();
 
-            while (reader.hasRemaining()) {
-                hash *= FNV_PRIME;
-                hash ^= reader.get() & 0xff;
+                while (reader.hasRemaining()) {
+                    c = reader.get() & 0xff;
+                    hash *= FNV_PRIME;
+                    hash ^= c;
+                }
+
+                reader.clear();
             }
 
-            reader.clear();
+        } catch (Exception e) {
+            System.err.println("Error while calculating hash:" + e.getMessage());
+            return 0;
         }
-        System.err.println(System.currentTimeMillis() - start);
+
         return hash;
     }
 }

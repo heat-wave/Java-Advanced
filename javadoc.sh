@@ -1,0 +1,1 @@
+javadoc -classpath artifacts/*:lib/* -sourcepath src/ -d Documentation/ -private ru.ifmo.ctddev.malimonov.implementor
