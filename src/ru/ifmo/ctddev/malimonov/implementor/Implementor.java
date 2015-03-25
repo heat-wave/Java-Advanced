@@ -1,5 +1,6 @@
 package ru.ifmo.ctddev.malimonov.implementor;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import info.kgeorgiy.java.advanced.implementor.ImplerException;
 import info.kgeorgiy.java.advanced.implementor.JarImpler;
 
@@ -9,6 +10,9 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,19 +30,19 @@ import java.util.zip.ZipEntry;
 public class Implementor implements JarImpler{
 
     /**
-     * {@link Set} with full implementations of given methods
+     *  Set with full implementations of given methods
      */
     static Set<String> implementedMethods = new HashSet<String>();
 
     /**
-     * {@link String} containing the file's directory
+     *  String containing the file's directory
      */
     String fileDir;
 
     /**
      * Returns default return value for given method
      *
-     * @param method an instance of {@link java.lang.reflect.Method}
+     * @param method an instance of java.lang.reflect.Method
      * @return default return value for <code>method</code>
      */
     public static String getDefaultReturnValue(Method method) {
@@ -57,7 +61,7 @@ public class Implementor implements JarImpler{
     /**
      * Converts Method to String that contains full description of the method with modifiers, return type and parameters
      *
-     * @param method an instance of {@link java.lang.reflect.Method}
+     * @param method an instance of  java.lang.reflect.Method
      * @return description of <code>method</code>
      */
     public static String getMethod(Method method) {
@@ -71,8 +75,8 @@ public class Implementor implements JarImpler{
     /**
      * Returns a string containing all the parameters of a given method
      *
-     * @param method an instance of {@link java.lang.reflect.Method}
-     * @return {@link java.lang.String} with all its parameters
+     * @param method an instance of  java.lang.reflect.Method
+     * @return  java.lang.String} with all its parameters
      */
     public static String getParameters(Method method) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -88,7 +92,7 @@ public class Implementor implements JarImpler{
     /**
      * Converts parameter to a string which contains all of the parameter's modifiers
      *
-     * @param parameter an instance of {@link java.lang.reflect.Parameter}
+     * @param parameter an instance of  java.lang.reflect.Parameter
      * @return full description of <code>parameter</code>
      */
     public static String getParameter(Parameter parameter) {
@@ -96,9 +100,9 @@ public class Implementor implements JarImpler{
     }
 
     /**
-     * Converts modifier constant to {@link java.lang.String}, except for Abstract and Transient modifiers
+     * Converts modifier constant to  java.lang.String, except for Abstract and Transient modifiers
      *
-     * @param modifiers a {@link java.lang.reflect.Modifier} constant
+     * @param modifiers a  java.lang.reflect.Modifier constant
      * @return String <code>result</code> according to <code>modifiers</code>
      */
     public static String modifiersToString(int modifiers) {
@@ -202,8 +206,8 @@ public class Implementor implements JarImpler{
         } else {
             name = ".";
         }
-        int mam = compile(workingDir, workingDir.getAbsolutePath() +  File.separator + path + token.getSimpleName() + "Impl.java");
-        System.out.println("# " + mam + "\n" + jarFile.getName() + "\n");
+        int code = compile(workingDir, workingDir.getAbsolutePath() +  File.separator + path + token.getSimpleName() + "Impl.java");
+        System.out.println("# " + code + "\n" + jarFile.getName() + "\n");
         createJar(name + token.getSimpleName() + "Impl", jarFile.getAbsolutePath(), path + token.getSimpleName() + "Impl.class", workingDir.getAbsolutePath());
     }
 
@@ -259,17 +263,25 @@ public class Implementor implements JarImpler{
      * @param args default args of any main
      */
     public static void main(String[] args) {
-        if (args == null || args.length == 0 || args[0] == null) {
-            throw new IllegalArgumentException("Not enough arguments!");
+        if (args.length < 2) {
+            System.out.println("Wrong args");
+            return;
         }
-        Class<?> clazz;
         try {
-            clazz = Class.forName(args[0]);
-            (new Implementor()).implementJar(clazz, new File("./out.jar"));
+            String name = args[0];
+            String filename = args[1];
+            File root = new File(filename);
+            Class<?> token = Class.forName(name);
+            Implementor implementor = new Implementor();
+            if ((args.length >= 3) && (args[2].equals("jar"))) {
+                implementor.implementJar(token, root);
+            } else {
+                implementor.implement(token, root);
+            }
         } catch (ClassNotFoundException e) {
-            System.err.println(e.toString());
+            System.err.println("Class not found");
         } catch (ImplerException e) {
-            e.printStackTrace();
+            System.err.println("Some error");
         }
     }
 
