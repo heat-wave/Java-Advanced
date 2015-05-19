@@ -1,1 +1,1 @@
-javadoc -classpath artifacts/*:lib/* -sourcepath src/ -d Documentation/ -linkoffline http://java.sun.com/javase/7/docs/api/ http://java.sun.com/javase/7/docs/api/ -private ru.ifmo.ctddev.malimonov.implementor info.kgeorgiy.java.advanced.implementor
+javadoc -classpath artifacts/*:lib/* -sourcepath src/ -d Documentation/ -linkoffline http://java.sun.com/javase/7/docs/api/ http://java.sun.com/javase/7/docs/api/ -private ru.ifmo.ctddev.malimonov.implementor info.kgeorgiy.java.advanced.implementor ru.ifmo.ctddev.malimonov.crawler
